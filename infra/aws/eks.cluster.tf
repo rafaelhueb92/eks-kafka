@@ -23,21 +23,22 @@ module "eks_poc" {
       apiVersion = "argoproj.io/v1alpha1"
       kind       = "Application"
       metadata = {
-        name      = "kafka-cluster"
-        namespace = "kafka"
+        name      = "kafka"
+        namespace = "argocd"
       }
       spec = {
         project = "default"
         source = {
-          repoURL        = "https://github.com/example/platform-apps.git"
-          targetRevision = "main"
-          path           = "apps/example"
+          repoURL        = "https://github.com/rafaelhueb92/eks-kafka.git"
+          targetRevision = "master"
+          path           = "manifests"
         }
         destination = {
           server    = "https://kubernetes.default.svc"
-          namespace = "default"
+          namespace = "kafka"
         }
         syncPolicy = {
+          syncOptions = ["CreateNamespace=true"]
           automated = {
             prune    = true
             selfHeal = true

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+  namespace: kafka
+  labels:
+    app: kafka-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-producer
+    spec:
+      containers:
+        - name: producer
+          image: python:3.12-slim
+          command: ["sh", "-c"]
+          args:
+            - |
+              pip install --no-cache-dir kafka-python &&
+              python /app/producer.py
+          volumeMounts:
+            - name: code
+              mountPath: /app
+      volumes:
+        - name: code
+          configMap:
+            name: kafka-apps

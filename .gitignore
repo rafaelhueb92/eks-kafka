@@ -1,5 +1,27 @@
+# Terraform
 .terraform/
-.abacusai/
 .terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform state lock files
+.terraform.tfstate.lock*
+
+# Local / IDE
+.abacusai/
+.DS_Store
+*.swp
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
