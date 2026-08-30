@@ -1,6 +1,7 @@
 apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
+  namespace: kafka
   name: controller
   labels:
     strimzi.io/cluster: kafka-cluster-ingress-poc

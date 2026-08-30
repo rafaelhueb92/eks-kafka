@@ -1,6 +1,7 @@
 apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
+  namespace: kafka
   name: kafka-cluster-ingress-poc-kafka-bootstrap
 spec:
   kafka:
