@@ -56,20 +56,14 @@ eks-ingress-kafka/
 │   │   └── output.tf
 │   └── local/                # Local (kind) bootstrap script
 │       └── init.sh
-├── manifests/                # Kafka manifests synced by Argo CD
+├── manifests/                # Kafka & App manifests synced by Argo CD
 │   ├── kafka.cluster.yml     # Kafka CR (KRaft)
 │   ├── kafka.broker.yml      # KafkaNodePool (broker)
 │   ├── kafka.controller.yml  # KafkaNodePool (controller)
 │   ├── kafka.namespace.yaml  # kafka namespace
-│   └── strimzi-crds.yaml     # Strimzi CRDs
-├── apps/                     # Producer / consumer apps
-│   ├── producer.py           # Python producer
-│   ├── consumer.py           # Python consumer
-│   ├── Dockerfile            # Optional single image build
-│   └── k8s/                  # Deployments + ConfigMap
-│       ├── configmap.yaml
-│       ├── producer.yaml
-│       └── consumer.yaml
+│   ├── configmap.yaml        # Python code for apps
+│   ├── producer.yaml         # Producer Deployment
+│   └── consumer.yaml         # Consumer Deployment
 ├── postmortem/               # Incident write-ups
 └── .gitignore
 ```
@@ -80,11 +74,11 @@ eks-ingress-kafka/
 
 - ✅ **EKS cluster** provisioned with a reusable Terraform module
 - ✅ **Argo CD** installed and bootstrapped with a `kafka` Application
-- ✅ **GitOps** — Kafka manifests synced automatically from `manifests/`
+- ✅ **GitOps** — Kafka and application manifests synced automatically from `manifests/`
 - ✅ **Strimzi operator** with `kafka.strimzi.io` CRDs
 - ✅ **KRaft mode** Kafka (no ZooKeeper)
 - ✅ **CreateNamespace** sync option — namespace created on demand
-- ✅ **Producer / consumer apps** — Python apps publishing to and consuming from Kafka
+- ✅ **Producer / consumer apps** — Python apps publishing to and consuming from Kafka, managed by Argo CD
 
 ---
 
@@ -115,7 +109,7 @@ aws eks update-kubeconfig --region us-east-1 --name kafka-cluster
 ### 3️⃣ Install the Strimzi operator
 
 ```bash
-kubectl apply -f manifests/strimzi-crds.yaml
+kubectl create namespace kafka
 kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka
 ```
 
@@ -129,27 +123,22 @@ kubectl get applications -n argocd
 kubectl get kafka -n kafka
 ```
 
-### 5️⃣ Deploy the producer & consumer apps
+### 5️⃣ Verify the producer & consumer apps
 
-The `apps/` directory contains two simple Python apps that publish to and consume from
-the `test-topic` topic, using the `python:3.12-slim` image from Docker Hub with the code
-injected via a ConfigMap (no image build required).
+The producer and consumer apps are simple Python scripts defined in `manifests/configmap.yaml`. They are automatically deployed by Argo CD as part of the `kafka` application.
 
-```bash
-kubectl apply -f apps/k8s/configmap.yaml
-kubectl apply -f apps/k8s/producer.yaml
-kubectl apply -f apps/k8s/consumer.yaml
-```
+The producer sends messages to `test-topic`, and the consumer reads them. Both use the `python:3.12-slim` image and install the `kafka-python` library at runtime.
 
-Watch messages flow:
+Watch messages flow using `kubectl`:
 
 ```bash
 kubectl logs -n kafka deploy/kafka-consumer -f
 ```
 
-> **Note:** The apps are deployed directly with `kubectl` for this PoC. To manage them via
-> Argo CD, add the `apps/k8s/` path to the `kafka` Application's `source.path` (or a second
-> Application).
+Or using **k9s** to monitor the consumer logs:
+
+> **Screenshot: Consumer logs in k9s**
+> ![k9s Consumer Logs](./images/screenshoot_consumer.png)
 
 ---
 
