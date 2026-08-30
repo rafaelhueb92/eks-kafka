@@ -10,7 +10,7 @@ data:
 
     from kafka import KafkaProducer
 
-    BOOTSTRAP = "kafka-cluster-ingress-poc-kafka-bootstrap.kafka.svc:9092"
+    BOOTSTRAP = "10.0.10.223:9092"
     TOPIC = "test-topic"
 
     producer = KafkaProducer(
@@ -31,7 +31,7 @@ data:
 
     from kafka import KafkaConsumer
 
-    BOOTSTRAP = "kafka-cluster-ingress-poc-kafka-bootstrap.kafka.svc:9092"
+    BOOTSTRAP = "10.0.10.223:9092"
     TOPIC = "test-topic"
 
     consumer = KafkaConsumer(
